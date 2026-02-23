@@ -316,10 +316,59 @@ namespace ModMogul
 					));
 				}
 
+				ApplyEmissive(import, gm, m);
+
 				dict[mi] = m;
 			}
 
 			return dict;
+		}
+
+		private static void ApplyEmissive(GltfImport import, GLTFast.Newtonsoft.Schema.Material gltfMaterial, UnityEngine.Material unityMaterial)
+		{
+			if (import == null || gltfMaterial == null || unityMaterial == null)
+			{
+				return;
+			}
+
+			UnityEngine.Texture emissiveTex = null;
+			if (gltfMaterial.emissiveTexture != null && gltfMaterial.emissiveTexture.index >= 0)
+			{
+				emissiveTex = import.GetTexture(gltfMaterial.emissiveTexture.index);
+			}
+
+			if (emissiveTex != null && unityMaterial.HasProperty("_EmissionMap"))
+			{
+				unityMaterial.SetTexture("_EmissionMap", emissiveTex);
+			}
+
+			float r = 0f;
+			float g = 0f;
+			float b = 0f;
+			if (gltfMaterial.emissiveFactor != null && gltfMaterial.emissiveFactor.Length >= 3)
+			{
+				r = gltfMaterial.emissiveFactor[0];
+				g = gltfMaterial.emissiveFactor[1];
+				b = gltfMaterial.emissiveFactor[2];
+			}
+
+			bool hasEmission = emissiveTex != null || r > 0f || g > 0f || b > 0f;
+			if (!hasEmission || !unityMaterial.HasProperty("_EmissionColor"))
+			{
+				return;
+			}
+
+			if (r <= 0f && g <= 0f && b <= 0f)
+			{
+				r = 1f;
+				g = 1f;
+				b = 1f;
+			}
+
+			unityMaterial.SetColor("_EmissionColor", new Color(r, g, b, 1f));
+			unityMaterial.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+			unityMaterial.globalIlluminationFlags |= MaterialGlobalIlluminationFlags.RealtimeEmissive;
+			unityMaterial.EnableKeyword("_EMISSION");
 		}
 
 		static UnityEngine.Material CreateCleanStandard()
