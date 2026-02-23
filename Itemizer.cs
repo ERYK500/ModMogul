@@ -388,5 +388,53 @@ namespace ModMogul
 			}
 			return null;
 		}
+
+		[HarmonyPatch(typeof(ToolBuilder), "QButtonPressed")]
+		private static class Patch_ToolBuilder_QButtonPressed_Prefix
+		{
+			static bool Prefix(ToolBuilder __instance)
+			{
+				if (__instance.Definition.QButtonFunction == "MirrorVertical")
+				{
+					foreach (ItemRuntime i in _itemsByBlockId.Values)
+					{
+						if (i.Spec.DisplayName.Trim() == __instance.Definition.Name.Trim())
+						{
+							__instance.Definition.GetMainPrefab().transform.localScale = new Vector3(__instance.Definition.GetMainPrefab().transform.localScale.x, -__instance.Definition.GetMainPrefab().transform.localScale.y, __instance.Definition.GetMainPrefab().transform.localScale.z);
+
+							if (__instance.Definition.GetMainPrefab().transform.localScale.y < 0)
+							{
+								foreach (MeshFilter f in __instance.Definition.GetMainPrefab().GetComponentsInChildren<MeshFilter>())
+								{
+									f.transform.localPosition = -Vector3.up;
+								}
+							}
+							else
+							{
+								foreach (MeshFilter f in __instance.Definition.GetMainPrefab().GetComponentsInChildren<MeshFilter>())
+								{
+									f.transform.localPosition = Vector3.zero;
+								}
+							}
+							Singleton<BuildingManager>.Instance.CleanUpGhostObject();
+							return false;
+						}
+					}
+				}
+				if (__instance.Definition.QButtonFunction == "MirrorHorizontal")
+				{
+					foreach (ItemRuntime i in _itemsByBlockId.Values)
+					{
+						if (i.Spec.DisplayName.Trim() == __instance.Definition.Name.Trim())
+						{
+							__instance.Definition.GetMainPrefab().transform.localScale = new Vector3(__instance.Definition.GetMainPrefab().transform.localScale.x, __instance.Definition.GetMainPrefab().transform.localScale.y, -__instance.Definition.GetMainPrefab().transform.localScale.z);
+							Singleton<BuildingManager>.Instance.CleanUpGhostObject();
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+		}
 	}
 }

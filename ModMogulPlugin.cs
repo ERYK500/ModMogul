@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace ModMogul
 {
-	[BepInPlugin("modmogul.core", "Mod Mogul", "0.4.0")]
+	[BepInPlugin("modmogul.core", "Mod Mogul", "0.5.0")]
 	public class ModMogulPlugin : BaseUnityPlugin
 	{
 		static SettingsSetter _settingsSetter;
