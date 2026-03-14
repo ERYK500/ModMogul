@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <AssemblyName>ModMogul</AssemblyName>
     <Description>An API with hooks to make modding easier</Description>
-    <Version>0.5.0</Version>
+    <Version>0.5.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -67,6 +67,9 @@
     </Reference>
     <Reference Include="UnityEngine.UIModule">
       <HintPath>..\..\MineMogul_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.Core">
+      <HintPath>..\..\MineMogul_Data\Managed\Unity.VisualScripting.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

@@ -53,7 +53,7 @@ namespace ModMogul
 			}
 			foreach (Image i in researchButton.GetComponentsInChildren<Image>())
 			{
-				if (i.name == "Icon") i.sprite = Utility.ImportSprite(iconPath);
+				if (i.name == "Icon") Utility.SetSprite(i, "sprite", iconPath);
 			}
 		}
 	}

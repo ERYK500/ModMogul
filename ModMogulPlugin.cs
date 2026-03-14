@@ -9,21 +9,21 @@ using UnityEngine.UI;
 
 namespace ModMogul
 {
-	[BepInPlugin("modmogul.core", "Mod Mogul", "0.5.0")]
+	[BepInPlugin("modmogul.core", "Mod Mogul", "0.5.1")]
 	public class ModMogulPlugin : BaseUnityPlugin
 	{
 		static SettingsSetter _settingsSetter;
 		public static Shader fadeShader;
 		public static Questify Questify;
+		static string _ModMogulPath = "";
+    public static string ModMogulPath { get => _ModMogulPath; }
 
-		private void Start ()
+		private void Start()
 		{
+			_ModMogulPath = Path.GetFullPath(Path.GetDirectoryName(Info.Location));
 			new Harmony("modmogul.core").PatchAll();
 
-			string assetPath = Path.Combine(
-									Paths.PluginPath,   // BepInEx/plugins
-									"ModMogul",
-									"modmogul.assets");
+			string assetPath = _ModMogulPath + "\\modmogul.assets";
 			AssetBundle bundle = AssetBundle.LoadFromFile(assetPath);
 			fadeShader = bundle.LoadAsset<Shader>("Fade");
 
@@ -77,17 +77,13 @@ namespace ModMogul
 
 			ModListUI.Populate(modsText);
 
-			string path = Path.Combine(
-							Paths.PluginPath,   // BepInEx/plugins
-							"ModMogul",
-							"ModMogul_Logo.png");
-			Sprite modMogulLogo = Utility.ImportSprite(path);
+			string path = ModMogulPath + "\\ModMogul_Logo.png";
 
 			foreach (Image i in FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None))
 			{
 				if (i.gameObject.name == "Logo")
 				{
-					i.sprite = modMogulLogo;
+					Utility.SetSprite(i, "sprite", path);
 					break;
 				}
 			}

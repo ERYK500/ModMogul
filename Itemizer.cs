@@ -261,8 +261,8 @@ namespace ModMogul
 				rt.Def.BuildingPrefabs = new List<BuildingObject> { rt.Prefab };
 
 				// Use the per-item iconPath stored in rt.Spec
-				rt.Def.InventoryIcon = Utility.ImportSprite(s.IconPath);
-				rt.Def.ProgrammerInventoryIcon = Utility.ImportSprite(s.IconPath);
+				Utility.SetSprite(rt.Def, "InventoryIcon", s.IconPath);
+				Utility.SetSprite(rt.Def, "ProgrammerInventoryIcon", s.IconPath);
 
 				rt.Def.PackedPrefab = GetABuildingCrate(allCats);
 				rt.Def.UseReverseRotationDirection = false;
