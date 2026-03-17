@@ -149,6 +149,15 @@ namespace ModMogul {
       yield return _textureCache[path]?.Instantiate();
     }
     public static IEnumerator<Texture2D> Load(string path, [Optional, DefaultParameterValue(5f)] ExpirationTime expirationTime) => Load(path, true, expirationTime);
+    public static void LoadAndApply(Action<Texture2D> applyFunc, string path, bool flipVertically, [Optional, DefaultParameterValue(5f)] ExpirationTime expirationTime) {
+      Utility.CoroutineExecutor.StartCoroutine(ApplyTexture());
+      IEnumerator ApplyTexture() {
+        var loadTexture = Load(path, flipVertically, expirationTime);
+        while (loadTexture.MoveNext()) yield return null;
+        applyFunc(loadTexture.Current);
+      }
+    }
+    public static void LoadAndApply(Action<Texture2D> applyFunc, string path, [Optional, DefaultParameterValue(5f)] ExpirationTime expirationTime) => LoadAndApply(applyFunc, path, true, expirationTime);
     [Obsolete("This is just an example use of the TextureLoader.Load method; implement your own specialized implementation.")]
     public static IEnumerator ApplyTextureOnMaterial(string path, Material mat) {
       var loadTexture = Load(path);

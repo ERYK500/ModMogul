@@ -261,8 +261,11 @@ namespace ModMogul
 				rt.Def.BuildingPrefabs = new List<BuildingObject> { rt.Prefab };
 
 				// Use the per-item iconPath stored in rt.Spec
-				Utility.SetSprite(rt.Def, "InventoryIcon", s.IconPath);
-				Utility.SetSprite(rt.Def, "ProgrammerInventoryIcon", s.IconPath);
+				TextureLoader.LoadAndApply((tex) => {
+					var sprite = tex.ToIconSprite();
+					rt.Def.InventoryIcon = sprite;
+					rt.Def.ProgrammerInventoryIcon = sprite;
+				}, s.IconPath);
 
 				rt.Def.PackedPrefab = GetABuildingCrate(allCats);
 				rt.Def.UseReverseRotationDirection = false;

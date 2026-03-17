@@ -77,16 +77,17 @@ namespace ModMogul
 
 			ModListUI.Populate(modsText);
 
-			string path = ModMogulPath + "\\ModMogul_Logo.png";
-
+			TextureLoader.LoadAndApply((tex) => {
+				var sprite = tex.ToIconSprite();
 			foreach (Image i in FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None))
 			{
 				if (i.gameObject.name == "Logo")
 				{
-					Utility.SetSprite(i, "sprite", path);
+						i.sprite = sprite;
 					break;
 				}
 			}
+			}, ModMogulPath + "\\ModMogul_Logo.png");
 
 			yield return null;
 			GameObject.FindFirstObjectByType<SavingLoadingManager>().SendMessage("Awake");

@@ -342,15 +342,10 @@ namespace ModMogul
 				unityMaterial.SetTexture("_EmissionMap", emissiveTex);
 			}
 
-			float r = 0f;
-			float g = 0f;
-			float b = 0f;
-			if (gltfMaterial.emissiveFactor != null && gltfMaterial.emissiveFactor.Length >= 3)
-			{
-				r = gltfMaterial.emissiveFactor[0];
-				g = gltfMaterial.emissiveFactor[1];
-				b = gltfMaterial.emissiveFactor[2];
-			}
+			var emissiveFactor = gltfMaterial.Emissive;
+			float r = emissiveFactor.r;
+			float g = emissiveFactor.g;
+			float b = emissiveFactor.b;
 
 			bool hasEmission = emissiveTex != null || r > 0f || g > 0f || b > 0f;
 			if (!hasEmission || !unityMaterial.HasProperty("_EmissionColor"))

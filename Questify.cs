@@ -51,10 +51,13 @@ namespace ModMogul
 				if (t.name == "NameText") t.text = questName;
 				else if (t.name == "RequiredTickets") t.text = "¤" + ticketCost.ToString();
 			}
-			foreach (Image i in researchButton.GetComponentsInChildren<Image>())
-			{
-				if (i.name == "Icon") Utility.SetSprite(i, "sprite", iconPath);
-			}
+			TextureLoader.LoadAndApply((tex) => {
+				var sprite = tex.ToIconSprite();
+				foreach (Image i in researchButton.GetComponentsInChildren<Image>())
+				{
+						if (i.name == "Icon") i.sprite = sprite;
+				}
+			}, iconPath);
 		}
 	}
 
