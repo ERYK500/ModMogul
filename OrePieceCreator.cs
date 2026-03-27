@@ -272,6 +272,7 @@ namespace ModMogul {
     /// The main reason that this exists, is to be able to read the now finalized definitions that can't change anymore.
     /// </summary>
     public static event Action AfterPieceAndResourceTypeCreation = new(() => { });
+    static int _texturesInLoadingProcess = 0;
     /// <summary>
     /// The following is used to apply new textures to a provided material.
     /// </summary>
@@ -280,12 +281,14 @@ namespace ModMogul {
     /// <param name="prefabName">The prefab name of the new material that these prefabs belong to.</param>
     /// <param name="path">The path to the texture file to import. If null a placeholder texture will be applied.</param>
     static IEnumerator ApplyTextureImpl(Material mat, string originalName, string prefabName, string path) {
+      _texturesInLoadingProcess++;
       var loadTexture = TextureLoader.Load(path);
       while (loadTexture.MoveNext()) yield return null; // Wait for it to be loaded.
       mat.name = Regex.Replace(mat.name, originalName, prefabName);
       var texName = Regex.Replace(mat.name, originalName, prefabName);
       mat.mainTexture = loadTexture.Current;
       mat.mainTexture.name = texName;
+      _texturesInLoadingProcess--;
     }
     /// <summary>
     /// The following is used to automatically apply new default textures to a provided material,
@@ -319,6 +322,46 @@ namespace ModMogul {
         return ApplyTextureImpl(mat, originalName, prefabName, ModMogulPlugin.ModMogulPath + "\\OrePieceCreator Defaults\\Whitened_Iron_" + piece.PieceType + "s.png");
       }
       return DummyEnumerator();
+    }
+    /// <summary>
+    /// This method is responsible for generating the missing 
+    ///   icon sprites for newly added OrePiece prefabs.
+    /// </summary>
+    static IEnumerator AddMissingIconSprites() {
+      while (_texturesInLoadingProcess > 0)
+        yield return new WaitForEndOfFrame();
+      Vector3 snapshotPosition = new(0f, -1000f, 0f);
+      GameObject SnapshotParent = new("SnapshotTemp");
+      const float x = 0.5f * 1.39838258929f;  //  tan(0.95)
+      const float z = 0.5f * 0.715111878295f; // -tan(0.95 + pi/2)
+      SnapshotParent.transform.position = snapshotPosition + new Vector3(x, 0.4f, z);
+      var light = SnapshotParent.AddComponent<Light>();
+      light.intensity = 1.45f;
+      var camera = SnapshotParent.AddComponent<Camera>();
+      camera.transform.LookAt(snapshotPosition);
+      camera.orthographic = true;
+      camera.orthographicSize = 0.4f;
+      camera.clearFlags = CameraClearFlags.Color;
+      camera.backgroundColor = new Color(0f, 0f, 0f, 0f);
+      foreach (var piece in SavingLoadingManager.Instance.AllOrePiecePrefabs) {
+        if (piece.InventoryIcon == null) {
+          GameObject go = GameObject.Instantiate(piece.gameObject, snapshotPosition, Quaternion.identity, SnapshotParent.transform);
+          RenderTexture renderTexture = new(256, 256, 16);
+          camera.targetTexture = renderTexture;
+          camera.Render();
+          RenderTexture.active = renderTexture;
+          Texture2D tex = new(256, 256, TextureFormat.RGBA32, false);
+          tex.ReadPixels(new Rect(0f, 0f, 256f, 256f), 0, 0);
+          tex.Apply();
+          tex.name = piece.name;
+          piece.InventoryIcon = tex.ToIconSprite();
+          piece.InventoryIcon.name = piece.name;
+          go.transform.position += new Vector3(1000f, 0f, 0f);
+          UnityEngine.Object.Destroy(go);
+          yield return null;
+        }
+      }
+      UnityEngine.Object.Destroy(SnapshotParent);
     }
     /// <summary>
     /// This is a helper function, created access the only OrePiece's private field _possibleMeshes.<br/>
@@ -523,6 +566,7 @@ namespace ModMogul {
           newPiece.BaseSellValue = piece.BaseSellValue * basePriceMult;
           newPiece.RandomPriceMultiplier = 1f;
           newPiece.ResourceType = ResourceTypeID;
+          newPiece.InventoryIcon = null;
           // In order for the prefabs to not disappear, we need to parent them
           //   to some GameObject that's marked with "DontDestroyOnLoad"
           newPiece.transform.parent = PrefabHolder.transform;
@@ -660,6 +704,7 @@ namespace ModMogul {
           newPiece.BaseSellValue = piece.BaseSellValue * basePriceMult;
           newPiece.RandomPriceMultiplier = 1f;
           newPiece.PieceType = PieceTypeID;
+          newPiece.InventoryIcon = null;
           // In order for the prefabs to not disappear, we need to parent them
           //   to some GameObject that's marked with "DontDestroyOnLoad"
           newPiece.transform.parent = PrefabHolder.transform;
@@ -701,6 +746,7 @@ namespace ModMogul {
       static void Prefix() {
         if (!_initialized) {
           OnPieceAndResourceTypeCreation(PrefabHolder);
+          Utility.CoroutineExecutor.StartCoroutine(AddMissingIconSprites());
           _initialized = true;
           AfterPieceAndResourceTypeCreation();
           CastingFurnaceAlloyingPatches.EvaluatePatching();

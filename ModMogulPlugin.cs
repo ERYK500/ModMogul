@@ -79,14 +79,14 @@ namespace ModMogul
 
 			TextureLoader.LoadAndApply((tex) => {
 				var sprite = tex.ToIconSprite();
-			foreach (Image i in FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-			{
-				if (i.gameObject.name == "Logo")
+				foreach (Image i in FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None))
 				{
+					if (i.gameObject.name == "Logo")
+					{
 						i.sprite = sprite;
-					break;
+						break;
+					}
 				}
-			}
 			}, ModMogulPath + "\\ModMogul_Logo.png");
 
 			yield return null;

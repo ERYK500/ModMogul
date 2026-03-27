@@ -55,7 +55,7 @@ namespace ModMogul
 				var sprite = tex.ToIconSprite();
 				foreach (Image i in researchButton.GetComponentsInChildren<Image>())
 				{
-						if (i.name == "Icon") i.sprite = sprite;
+					if (i.name == "Icon") i.sprite = sprite;
 				}
 			}, iconPath);
 		}
